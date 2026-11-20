@@ -71,7 +71,10 @@ apps/web/next-env.d.ts
 .superpowers/
 docs/superpowers/
 .codex
-.claude/
+# Claude Code: share the team's rules and skills, keep personal settings and state local
+.claude/*
+!.claude/rules/
+!.claude/skills/
 
 # Local scratch
 scratchpad/
