@@ -71,7 +71,9 @@ by a separate test that is not quarantined.
   there, the requester's thread then failed with "Something went wrong", so
   the fix likely needs more than that line. owner: unassigned, review by:
   2026-12-03.
+
 ### Support suite: workflows and the AI agent
+
 - `support/automation-ai.spec.ts` › AI agent in the widget › WFL-76 the model
   closes the conversation. The `end_conversation` tool needs
   `conversation.set_status` (its spec in `assistant.toolspec.ts`), but the AI
@@ -110,3 +112,13 @@ by a separate test that is not quarantined.
   board's posts download. Fix: refuse a deleted board with `Board not found`
   and filter `deleted_at` in the all-boards list. owner: unassigned, review
   by: 2026-12-03.
+- `feedback/admin-notifications.spec.ts` › FBA-N-15 the unread badge leaves out
+  bells redacted because the post was deleted. Product bug: once a post is
+  deleted, `getNotificationsForMember` redacts its bells (`Notification` /
+  `This activity is no longer visible to you.`), but `getUnreadCount`
+  (`apps/web/src/lib/server/domains/notifications/notification.service.ts:243`)
+  counts every unread, unarchived row with no post visibility check, so the
+  badge shows an unread count made of rows the person cannot open. Fix: apply
+  the same post/board/moderation join (or the list's denial rule) in
+  `getUnreadCount`, or exclude rows whose post is deleted or no longer visible.
+  owner: unassigned, review by: 2026-12-03.
