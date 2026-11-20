@@ -6,8 +6,13 @@
 import { z } from 'zod'
 import { createServerFn } from '@tanstack/react-start'
 import type { StatusComponentId } from '@quackback/ids'
-import { requireAuth, normalizePrincipalType } from './auth-helpers'
-import { subscribe, unsubscribe, getMySubscription } from '@/lib/server/domains/status'
+import { requireAuth, normalizePrincipalType, policyActorFromAuth } from './auth-helpers'
+import {
+  subscribe,
+  unsubscribe,
+  getMySubscription,
+  assertSubscribableComponents,
+} from '@/lib/server/domains/status'
 import { logger } from '@/lib/server/logger'
 import { ForbiddenError } from '@/lib/shared/errors'
 
@@ -45,12 +50,14 @@ export const subscribeStatusFn = createServerFn({ method: 'POST' })
     if (normalizePrincipalType(auth.principal.type) === 'anonymous') {
       throw new ForbiddenError('ANONYMOUS_NOT_ALLOWED', 'Anonymous interaction is not enabled')
     }
-    await subscribe(
-      auth.principal.id,
-      data.scope,
-      (data.componentIds ?? []) as StatusComponentId[],
-      'self_serve'
-    )
+    const componentIds: StatusComponentId[] =
+      data.scope === 'components'
+        ? await assertSubscribableComponents(
+            await policyActorFromAuth(auth),
+            data.componentIds ?? []
+          )
+        : []
+    await subscribe(auth.principal.id, data.scope, componentIds, 'self_serve')
     return { subscribed: true }
   })
 
