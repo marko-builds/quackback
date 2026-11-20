@@ -23,6 +23,10 @@ not repeat them.
 
 - CI (`.github/workflows/ci.yml`) runs lint, build, typecheck and four sharded unit-test jobs after
   `db:migrate`. Run lint, typecheck and the touched test files before calling a change done.
+- **Use bun 1.4.0**, the `packageManager` pin CI uses. Installed with bun 1.4.4, two copies of
+  `drizzle-orm` get linked and typecheck reports about 11,600 errors in files nobody touched;
+  under 1.4.0 the same commit typechecks clean. With mise: `mise exec bun@1.4.0 -- bun install`.
+- Typecheck needs the generated route tree: run `bun run build` once on a fresh checkout.
 - Many unit suites talk to Postgres (`DATABASE_URL` defaults to `quackback_test` on localhost in
   `vitest.config.ts`). Pure-function suites do not: `conversation-email-channel.test.ts` runs 84
   tests with no database. Try the file alone first; start Docker only when it fails to connect.
