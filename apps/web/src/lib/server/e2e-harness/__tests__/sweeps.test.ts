@@ -25,6 +25,16 @@ vi.mock('@/lib/server/domains/workflows/workflow-sweep-queue', () => ({
     calls.push({ job: 'workflow-sweep', at })
   }),
 }))
+vi.mock('@/lib/server/domains/summary/summary.service', () => ({
+  refreshStaleSummaries: vi.fn(async () => {
+    calls.push({ job: 'summary-sweep' })
+  }),
+}))
+vi.mock('@/lib/server/domains/merge-suggestions/merge-check.service', () => ({
+  sweepMergeSuggestions: vi.fn(async () => {
+    calls.push({ job: 'merge-sweep' })
+  }),
+}))
 vi.mock('@/lib/server/email/email-log.retention', () => ({
   runEmailLogRetention: vi.fn(async () => {
     calls.push({ job: 'email-log-retention' })
@@ -82,6 +92,17 @@ describe('runE2eSweep', () => {
     const outcome = await runE2eSweep({ job: 'email-log-retention' })
     expect(outcome).toMatchObject({ ok: true, job: 'email-log-retention' })
     expect(calls).toEqual([{ job: 'email-log-retention' }])
+  })
+
+  it('runs the feedback summary and merge sweeps on the wall clock only', async () => {
+    for (const job of ['summary-sweep', 'merge-sweep']) {
+      expect(await runE2eSweep({ job }), job).toMatchObject({ ok: true, job })
+      expect(await runE2eSweep({ job, asOf: '2030-01-01T00:00:00Z' }), job).toMatchObject({
+        ok: false,
+        status: 400,
+      })
+    }
+    expect(calls).toEqual([{ job: 'summary-sweep' }, { job: 'merge-sweep' }])
   })
 
   it('lists the sweeps it accepts and never the one-shot queues', () => {
