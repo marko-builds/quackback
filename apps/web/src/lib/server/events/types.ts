@@ -189,6 +189,33 @@ export interface PostOwnerAssignedPayload {
   previousOwnerPrincipalId: string | null
 }
 
+/**
+ * The team's decision on a held post or comment. Catalogue-only events (not in
+ * EVENT_TYPES, so off the webhook surface): they exist to tell the author.
+ */
+export const MODERATION_DECISION_EVENT_TYPES = [
+  'post.approved',
+  'post.rejected',
+  'comment.approved',
+  'comment.rejected',
+] as const
+export type ModerationDecisionEventType = (typeof MODERATION_DECISION_EVENT_TYPES)[number]
+
+export interface ModerationDecisionPayload {
+  postId: string
+  postTitle: string
+  boardId: string
+  boardSlug: string
+  /** Who wrote the held item; null for an item with no author left. */
+  authorPrincipalId: string | null
+  /** comment.approved / comment.rejected only. */
+  commentId?: string
+}
+
+export function isModerationDecisionEventType(type: string): type is ModerationDecisionEventType {
+  return (MODERATION_DECISION_EVENT_TYPES as readonly string[]).includes(type)
+}
+
 export interface PostDeletedPayload {
   post: EventPostRef
   deletedBy?: string

@@ -107,6 +107,8 @@ interface PostCardProps {
   showAvatar?: boolean
   moderationState?: 'published' | 'pending' | string | null
   canModerate?: boolean
+  /** A held post is shown to its author: tell them it waits for review. */
+  pendingForAuthor?: boolean
   moderationBusy?: boolean
   onApprove?: () => void
   onReject?: () => void
@@ -148,6 +150,7 @@ export function PostCard({
   showAvatar = true,
   moderationState,
   canModerate = false,
+  pendingForAuthor = false,
   moderationBusy = false,
   onApprove,
   onReject,
@@ -599,6 +602,7 @@ export function PostCard({
             <InlineModerationActions
               pending
               noun="post"
+              forAuthor={(pendingForAuthor || isCurrentUserAuthor) && !canModerate}
               busy={moderationBusy}
               onApprove={canModerate ? onApprove : undefined}
               onReject={canModerate ? onReject : undefined}
