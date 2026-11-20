@@ -19,7 +19,7 @@ import {
 import type { KbCategoryId } from '@quackback/ids'
 
 const updateCategoryBody = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   slug: z.string().max(200).optional(),
   description: z.string().max(2000).nullable().optional(),
   isPublic: z.boolean().optional(),

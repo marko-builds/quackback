@@ -24,7 +24,7 @@ import type { KbArticleId, PrincipalId } from '@quackback/ids'
 
 const updateArticleBody = z.object({
   categoryId: z.string().optional(),
-  title: z.string().min(1).max(200).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   content: z.string().min(1).optional(),
   slug: z.string().max(200).optional(),
   description: z.string().max(300).optional(),
