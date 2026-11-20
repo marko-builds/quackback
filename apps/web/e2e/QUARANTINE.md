@@ -71,7 +71,9 @@ by a separate test that is not quarantined.
   there, the requester's thread then failed with "Something went wrong", so
   the fix likely needs more than that line. owner: unassigned, review by:
   2026-12-03.
+
 ### Support suite: workflows and the AI agent
+
 - `support/automation-ai.spec.ts` › AI agent in the widget › WFL-76 the model
   closes the conversation. The `end_conversation` tool needs
   `conversation.set_status` (its spec in `assistant.toolspec.ts`), but the AI
@@ -80,3 +82,28 @@ by a separate test that is not quarantined.
   check in `assistant.tools.ts` denies every call ("This action is not
   permitted for the assistant.") and the conversation stays open. Runs in the
   support-isolated job. owner: unassigned, review by: 2026-12-03.
+
+### Product suite: people (team access and portal account)
+
+- `people/members.spec.ts` › changing roles › PPL-T-35 choosing Member for a
+  custom-role holder moves them to the Manager preset. Product bug: the
+  change succeeds and is audited, but the workspace assignment keeps the
+  custom (or Contributor / Support lead) role, so the badge and the
+  permissions do not change. `updateMemberRole` calls `setPrincipalRole` with
+  no `assignRoleId` and no `resetAssignment`
+  (`apps/web/src/lib/server/domains/principals/principal.service.ts:400`), and
+  the factory reconciles the assignment only when the legacy column moves
+  (`apps/web/src/lib/server/domains/principals/principal.factory.ts:381`);
+  member to member never moves. Fix: pass `resetAssignment: true` when the
+  caller chose `member` with no `roleId`. owner: unassigned, review by:
+  2026-12-03.
+- `people/members.spec.ts` › REST role changes and removal › PPL-T-48 a
+  personal key cannot change or remove its own creator. Product bug: the REST
+  self guards compare the target with the key's own service principal
+  (`auth.principalId`), not the person the key acts for
+  (`apps/web/src/routes/api/v1/principals/$principalId.ts:98` and `:151`), so
+  `CANNOT_MODIFY_SELF` / `CANNOT_REMOVE_SELF` never fire and an owner's
+  personal key demotes (or removes) the owner; the server functions refuse
+  the same action (PPL-T-37). Fix: pass the key's creator principal as the
+  acting principal for personal keys. owner: unassigned, review by:
+  2026-12-03.
