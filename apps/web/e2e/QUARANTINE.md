@@ -71,7 +71,9 @@ by a separate test that is not quarantined.
   there, the requester's thread then failed with "Something went wrong", so
   the fix likely needs more than that line. owner: unassigned, review by:
   2026-12-03.
+
 ### Support suite: workflows and the AI agent
+
 - `support/automation-ai.spec.ts` › AI agent in the widget › WFL-76 the model
   closes the conversation. The `end_conversation` tool needs
   `conversation.set_status` (its spec in `assistant.toolspec.ts`), but the AI
@@ -80,3 +82,15 @@ by a separate test that is not quarantined.
   check in `assistant.tools.ts` denies every call ("This action is not
   permitted for the assistant.") and the conversation stays open. Runs in the
   support-isolated job. owner: unassigned, review by: 2026-12-03.
+
+### Product suite: platform settings, search and analytics (INT)
+
+- `platform/admin-search.spec.ts` › INT-SR-02 the results page ignores a
+  short query, an unknown kind and a page out of range. Product bug:
+  `validateSearch` in `apps/web/src/routes/admin/search.tsx:23` drops an
+  invalid `kind` or `page` by leaving the key out of its result, but the raw
+  value still reaches `Route.useSearch()`, so `?kind=nope` presses no chip and
+  sends an invalid kind, and `?page=99` or `?page=abc` sit on "Searching…"
+  with Previous/Next and no results. Fix: return the keys explicitly
+  (`kind: undefined`, `page: undefined`), as `routes/admin/analytics.tsx`
+  does for `section`. owner: unassigned, review by: 2026-12-03.
